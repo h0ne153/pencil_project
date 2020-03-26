@@ -1,0 +1,212 @@
+
+<!doctype html>
+<html>
+<body><script src="http://pencilcode.net/turtlebits.js" crossorigin="anonymous" type="text/javascript"></script><script type="text/javascript">
+eval(this._start_ide_js_);
+
+speed(Infinity);
+box(1500, rgb(52, 73, 94));
+// Размер рабочей области
+// в виде массива [ширина, высота]
+// windowSize[0] - ширина
+// windowSize[1] - высота
+var windowSize = sizexy();
+var startPoint = -windowSize[1]/2 + 25;
+jumpto(0, startPoint+40);
+wear('https://i.pinimg.com/originals/f9/c3/b8/f9c3b87855a4ad2121fc5acf0c5d73e1.png', 100);
+twist(180);
+
+// Препятствия
+var knifes = {
+  k1: new Sprite({color:green, width:100, height: 10}),
+  k2: new Sprite({color:blue, width:100, height: 10})
+};
+
+// Положение препятствий по высоте
+// относительно центра экрана
+knifes.k1.fd(50);
+knifes.k2.bk(50);
+
+// Пуля
+var bullet = new Turtle("red");
+bullet.grow(2);// Размер пули
+bullet.hide(); // Прячем пулю
+bullet.wear('https://github.com/h0ne153/CosmoPencil-img/blob/master/kisspng-enter-the-gungeon-playstation-4-sprite-bullets-5ad2c5c11ca334.2815703515237626251173.png?raw=true', 25);
+bullet.twist(0);
+
+// ====ENEMIES=START=====================
+// Создание врагов
+var E_WIDTH = 30; // высота врага
+var E_HEIGHT = 30; // ширина врага
+var NUM_OF_ENEMY = 2; // количество врагов
+var enemies = []; // массив всех врагов
+
+// windowSize[0] - ширина окна
+// windowSize[1] - высота окна
+var ww = windowSize[0]; // ww - window width
+var wh = windowSize[1]; // wh - window height
+var x0 = -ww/2;
+var y0 = wh/2 - E_HEIGHT/2;
+var distance_x = 1.5 * E_WIDTH;
+var distance_y = 1.5 * E_HEIGHT;
+
+for (var i = 0; i < NUM_OF_ENEMY; i++) {
+  var enemy = new Sprite({color:  red,
+                          width:  E_WIDTH,
+                          height: E_HEIGHT});
+  
+  x0 = x0 + distance_x;
+
+  if (x0 > ww/2 - distance_x) {
+    y0 = y0 - distance_y;
+    x0 = -ww/2 + distance_x;
+  }
+  enemy.wear('https://xgm.guru/files/283/119046/blue1.png', 100);
+  enemy.jumpto(x0, y0);
+  enemies.push(enemy);
+}
+// ====ENEMIES=END=====================
+
+// ====BULLETS=START=====================
+// Создание пуль
+var NUM_OF_BULLETS = NUM_OF_ENEMY*1.25; // количество пуль
+var B_WIDTH = ww/18; // высота пули
+var B_HEIGHT = 100/NUM_OF_BULLETS; // ширина пули
+var bullets = []; // массив всех пуль
+
+var x1 = ww/2 - B_WIDTH/2;
+var y1 = -wh/2 + B_HEIGHT;
+var distance_y_b = 1.5 * B_HEIGHT;
+
+for (var i = 0; i < NUM_OF_BULLETS; i++) {
+  var bullet_t = new Sprite({color:  gold,
+                          width:  B_WIDTH,
+                          height: B_HEIGHT});
+  bullet_t.wear('https://github.com/h0ne153/CosmoPencil-img/blob/master/kisspng-enter-the-gungeon-playstation-4-sprite-bullets-5ad2c5c11ca334.2815703515237626251173.png?raw=true', 60);
+  //bullet_t.twist();
+  y1 = y1 + distance_y_b;
+  bullet_t.jumpto(x1, y1);
+  bullets.push(bullet_t);
+}
+// ====BULLETS=END=====================
+
+function destroy_enemy(aBullet, aEnemies, aCounter) {
+  for (var i = 0; i < NUM_OF_ENEMY; i++) {
+    var enemy = aEnemies[i];
+    if (aBullet.touches(enemy)) {
+      enemy.hide();
+      aBullet.hide();
+      aBullet.jumpto(getxy());
+      isGunDone = true;
+      aCounter--;
+    }
+  }
+}
+
+function gameOver() {
+  cs();
+  hide();
+  box(1500, rgb(255, 255, 255));
+  write("<center style='margin-top:"+wh/2+"px;font-size:50px;font-wight:bold;'><h1>Game Over</h1></center>");
+}
+knifes.k1.wear('https://lh3.googleusercontent.com/QH_RefmcIpURGgFfxRcwxHA3msC0aNjH5gL90LekbIJxnPDBUN4bpq_4JnR8DelAGt2kixwcewBZ4dB9g3BCEw=s400', 75);
+knifes.k2.wear('https://lh3.googleusercontent.com/QH_RefmcIpURGgFfxRcwxHA3msC0aNjH5gL90LekbIJxnPDBUN4bpq_4JnR8DelAGt2kixwcewBZ4dB9g3BCEw=s400', 75);
+knifes.k1.twist(45);
+knifes.k2.twist(45);
+// Шаг перемещения
+var step = 4;
+var position; // Позиция игрока
+var isSpace = false; //Нажат пробел?
+var isGunDone = true; //Готов стрелять?
+var k1Speed = 1; // Скорость ножа k1
+var k2Speed = -3; // Скорость ножа k2
+// Счетчик оставшихся патронов
+var counter_bullets = bullets.length - 1;
+// Счетчик оставшихся врагов
+var counter_enemies = enemies.length;
+forever(60, function() {
+  position = getxy()[0];
+  if (pressed('a')) {
+    slide(-step, 0);
+  } else if (pressed('d')) {
+    slide(step, 0);
+  }
+  
+  // Закольцевали движение игрока
+  if (!inside(window)) {
+    if (position > 0) {
+      slide(-windowSize[0], 0);
+    } else if (position < 0) {
+      slide(windowSize[0], 0);
+    }
+  }
+  
+  if (pressed('space') && isGunDone) {
+    bullet.jumpto(getxy());
+    isSpace = true;
+    isGunDone = false; 
+    // Достаем патрон
+    if (counter_bullets >= 0) {
+      bullets[counter_bullets].hide();
+      counter_bullets--;
+      bullet.show();
+    }
+    
+    if (counter_bullets == -1) {
+      gameOver();
+    }
+  }
+  
+  if (isSpace === true) {
+    bullet.fd(6);
+  }
+  if (!bullet.inside(window)) {
+    isGunDone = true;
+  }
+  
+  // Столкновение пули с ножами
+  // Пуля исчезает и перезаряжается
+  if (bullet.touches(knifes.k1) ||
+      bullet.touches(knifes.k2)) {
+    bullet.hide();
+    bullet.jumpto(getxy());
+    isGunDone = true;
+  }
+  
+  // Движени ножей
+  knifes.k1.slide(k1Speed, 0);
+  knifes.k2.slide(k2Speed, 0);
+  
+  // Отскакивание от стен ножа k1
+  // k1xr - правая координата ножа
+  // k1xl - левая координата ножа
+  var k1x = knifes.k1.getxy()[0];
+  var k1xr = k1x + knifes.k1.width()/2;
+  var k1xl = k1x - knifes.k1.width()/2;
+  if (k1xr > windowSize[0]/2) {
+    k1Speed = -k1Speed;
+  } else if (k1xl < -windowSize[0]/2) {
+    k1Speed = -k1Speed;
+  }
+  
+  // Отскакивание от стен ножа k2
+  // k2xr - правая координата ножа
+  // k2xl - левая координата ножа
+  var k2x = knifes.k2.getxy()[0];
+  var k2xr = k2x + knifes.k2.width()/2;
+  var k2xl = k2x - knifes.k2.width()/2;
+  if (k2xr > windowSize[0]/2) {
+    k2Speed = -k2Speed;
+  } else if (k2xl < -windowSize[0]/2) {
+    k2Speed = -k2Speed;
+  }
+  
+  destroy_enemy(bullet, enemies, counter_enemies);
+  
+  if (counter_enemies == -1) {
+    
+  }
+});
+
+
+</script></body></html>
