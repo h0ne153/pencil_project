@@ -103,7 +103,7 @@ for (var i = 0; i < NUM_OF_BULLETS; i++) {
                           height: B_HEIGHT});
   bullet_t.wear('https://res.cloudinary.com/mirukusheku/image/upload/v1495140035/Red_laser-ConvertImage_votu8o.png', 50);
   bullet_t.twist(90);
-  y1 = y1 + distance_y_b;
+  y1 = y1 + distance_y_b + 25;
   bullet_t.jumpto(x1, y1);
   bullets.push(bullet_t);
 }
