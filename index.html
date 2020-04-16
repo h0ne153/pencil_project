@@ -10,7 +10,6 @@
     </style>
     </head>
 <body><script src="https://pencilcode.net/turtlebits.js" crossorigin="anonymous" type="text/javascript"></script><script type="text/javascript">
-eval(this._start_ide_js_);
 
 speed(Infinity);
 box(4000, black);
@@ -18,7 +17,7 @@ box(4000, black);
 // в виде массива [ширина, высота]!
 // windowSize[0] - ширина!
 // windowSize[1] - высота!
-//     var t = new Turtle(red)!
+// var t = new Turtle(red)!
 var windowSize = sizexy();
 
 //Стартовая точка игрока по оси Y
@@ -108,7 +107,7 @@ for (var i = 0; i < NUM_OF_BULLETS; i++) {
   bullet_t.twist(90);
   y1 = y1 + distance_y_b + 2.5;
   bullet_t.jumpto(x1, y1);
-  bullets.push(bullet_t);// ?
+  bullets.push(bullet_t);
 }
 // ====BULLETS=END=====================
 
