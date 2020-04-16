@@ -201,7 +201,9 @@ forever(60, function() {
   if (isSpace === true) {
     bullet.fd(bspeed);
   }
-  if (!bullet.inside(window)) { //Если пуля покидает окно?
+  
+  //Если пуля покидает окно можно стрелять
+  if (!bullet.inside(window)) { 
     isGunDone = true;
   }
   
