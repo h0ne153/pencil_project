@@ -25,9 +25,10 @@ var windowSize = sizexy();
 var startPoint = -windowSize[1]/2 + 50;
 jumpto(0, startPoint+40);
 
+//картинка главного персонажа
 wear("https://i1.wp.com/sagesingularity.files.wordpress.com/2017/06/cropped-bluefighter1.png?w=700&h=&crop&ssl=1", 150);
 
-// Препятствия
+// Препятствия и их цвет, высота, широта
 var knifes = {
   k1: new Sprite({color:green, width:150, height: 10}),
   k2: new Sprite({color:blue, width:100, height: 10}),
@@ -63,10 +64,11 @@ var ww = windowSize[0]; // ww - window width
 var wh = windowSize[1]; // wh - window height
 var x0 = -ww/2; //+ E_WIDTH;
 var y0 = wh/2 - E_HEIGHT*1.5;
-var distance_x = 2.75 * E_WIDTH; 
-var distance_y = 2.5 * E_HEIGHT;
+var distance_x = 2.75 * E_WIDTH; //расстояние между врагами по оси X
+var distance_y = 2.5 * E_HEIGHT; //расстояние между врагами по оси Y
 var j = 2;
 
+//создаём спрайты для врагов, также расстояние между ними
 for (var i = 0; i < NUM_OF_ENEMY; i++) {
   var enemy = new Sprite({color:  red,
                           width:  E_WIDTH,
@@ -82,7 +84,7 @@ for (var i = 0; i < NUM_OF_ENEMY; i++) {
   }
   enemy.wear('https://vignette.wikia.nocookie.net/starbound/images/0/0e/Asteroid.png/revision/latest/scale-to-width-down/340?cb=20140324120428&path-prefix=ru', 75);
   enemy.jumpto(x0, y0);
-  enemies.push(enemy);
+  enemies.push(enemy); //Забыл что это?
 }
 // ====ENEMIES=END=====================
 
@@ -93,10 +95,11 @@ var B_WIDTH = ww/18; // высота пули
 var B_HEIGHT = 100/NUM_OF_BULLETS; // ширина пули
 var bullets = []; // массив всех пуль
 
-var x1 = ww/2 - B_WIDTH/2;
-var y1 = -wh/2 + B_HEIGHT;
-var distance_y_b = 1.5 * B_HEIGHT;
+var x1 = ww/2 - B_WIDTH/2; // Кординаты для показа количества пуль
+var y1 = -wh/2 + B_HEIGHT; // Кординаты для показа количества пуль
+var distance_y_b = 1.5 * B_HEIGHT; // Расстояние между количеством пуль
 
+// Создаём пули
 for (var i = 0; i < NUM_OF_BULLETS; i++) {
   var bullet_t = new Sprite({color:  gold,
                           width:  B_WIDTH,
@@ -105,10 +108,11 @@ for (var i = 0; i < NUM_OF_BULLETS; i++) {
   bullet_t.twist(90);
   y1 = y1 + distance_y_b + 2.5;
   bullet_t.jumpto(x1, y1);
-  bullets.push(bullet_t);
+  bullets.push(bullet_t);,// ?
 }
 // ====BULLETS=END=====================
 
+// Уничтожение врагов
 function destroy_enemy(aBullet, aEnemies, aCounter) {
   for (var i = 0; i < NUM_OF_ENEMY; i++) {
     var enemy = aEnemies[i];
@@ -123,19 +127,22 @@ function destroy_enemy(aBullet, aEnemies, aCounter) {
   return aCounter;
 }
 
+// Функция конец игры
 function gameOver() {
   cs();
   hide();
   box(4000, rgb(255, 255, 255));
   write("<center style='margin-top:"+wh/2+"px;font-size:50px;font-wight:bold;'><h1>Game Over</h1></center>");
 }
+  
+// Функция победа
 function yourWin() {
   //cs();
   knifes.k1.hide();
-  knifes.k2.hide();
+  knifes.k2.hide();  // Прячу препятствия
   knifes.k3.hide();
   hide();
-  isGunDone = false;
+  isGunDone = false; // Запрещаю стрелять
   //box(1500, rgb(255, 255, 255));
   write("<center style='color:#ffffff;margin-top:"+wh/2+"px;font-size:50px;font-wight:bold;'><h1>Your Win</h1></center>");
 } 
@@ -174,6 +181,7 @@ forever(60, function() {
     }
   }
   
+  // Стреляем
   if (pressed('space') && isGunDone) {
     bullet.jumpto(getxy());
     isSpace = true;
@@ -193,7 +201,7 @@ forever(60, function() {
   if (isSpace === true) {
     bullet.fd(bspeed);
   }
-  if (!bullet.inside(window)) {
+  if (!bullet.inside(window)) { //Если пуля покидает окно?
     isGunDone = true;
   }
   
@@ -235,7 +243,7 @@ forever(60, function() {
     k2Speed = -k2Speed;
   }
   
-    // Отскакивание от стен ножа k3
+  // Отскакивание от стен ножа k3
   // k3xr - правая координата ножа
   // k3xl - левая координата ножа
   var k3x = knifes.k3.getxy()[0];
@@ -249,6 +257,7 @@ forever(60, function() {
   
   counter_enemies = destroy_enemy(bullet, enemies, counter_enemies);
   
+  // Сраниваем количсетво врагов, если = 0 победа
   if (counter_enemies === 0) {
     yourWin();
     counter_enemies = -1;
