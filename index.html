@@ -11,37 +11,144 @@
     </head>
 <body><script src="https://pencilcode.net/turtlebits.js" crossorigin="anonymous" type="text/javascript"></script><script type="text/javascript">
 
+
 speed(Infinity);
-box(4000, black);
-// Размер рабочей области!
+var button10 = new Sprite({color:(rgba(0,0,0, 0.001))});
+//button10(rgb(0,0,0, 0.001));
+box(black, 1000);
+button10.wear('https://github.com/h0ne153/CosmoPencil-img/blob/master/play.png?raw=true', 100);
+button10.jumpto(-50,75);
+var button11 = new Sprite({color:(rgba(0,0,0, 0.001))});
+button11.wear('https://github.com/h0ne153/CosmoPencil-img/blob/master/menu.png?raw=true', 100);
+button11.jumpto(155, 75);
+
+function drawGameBackground() {
+  box(1500, black);
+}
+function drawMenuBackground() {
+  box(1500, black);
+}
+
+var level = 1;  // Номер уровня
+var levels = [  // Настройки уровней
+  {
+    enemyEpeed: 5,
+    numOfEnemies: 15,
+    kb: 1.30
+  },
+  {
+    enemyEpeed: 8,
+    numOfEnemies: 20,
+    kb: 1.20
+  },
+  {
+    enemyEpeed: 11,
+    numOfEnemies: 25,
+    kb: 1.10
+  },
+  {
+    enemyEpeed: 15,
+    numOfEnemies: 30,
+    kb: 1.05    
+  }
+];
+
+speed(Infinity);
+var button1 = {
+  x0: -100,
+  y0: 40,
+  height: 60,
+  width: 120,
+  color: red,
+  link: "https://github.com/h0ne153/CosmoPencil-img/blob/master/play.png?raw=true"
+};
+var button2 = {
+  x0: -100,
+  y0: -40,
+  height: 60,
+  width: 120,
+  color: green
+};
+var button3 = {
+  x0: 100,
+  y0: -40,
+  height: 60,
+  width: 120,
+  color: blue
+};
+var button4 = {
+  x0: 100,
+  y0: 40,
+  height: 60,
+  width: 120,
+  color: pink,
+  link: "https://github.com/h0ne153/CosmoPencil-img/blob/master/menu.png?raw=true"
+};
+
+function drawButton(aButton) {
+  jumpto(aButton.x0, aButton.y0);
+  rectangle(aButton.color, aButton.height, aButton.width);
+}
+
+function drawButton1(aButton) {
+  var pic2 = img(aButton.link);
+}
+
+
+//drawButton1(button1);
+//drawButton(button2);
+//drawButton(button3);
+//drawButton(button4);
+hide();
+
+
+function onClickButton(aEvent, aButton) {
+  var a = {x: aButton.x0, y: aButton.y0};
+  var c = {x: aButton.x0 + aButton.width, y: aButton.y0+aButton.height};
+  
+  var x = aEvent.x;
+  var y = aEvent.y;
+  
+  if (x >= a.x && x <= c.x &&
+      y >= a.y && y <= c.y)
+      return true;
+      
+  return false;
+}
+
+click(function(event) {
+  show();
+  if (onClickButton(event, button1)) {
+    drawGameBackground();
+    speed(Infinity);
+    cs();
+box(1500, black);
+// Размер рабочей области
 // в виде массива [ширина, высота]
-// windowSize[0] - ширина!
-// windowSize[1] - высота!
-// var t = new Turtle(red)
+// windowSize[0] - ширина
+// windowSize[1] - высота
+// var t = new Turtle(red);
 var windowSize = sizexy();
 
 //Стартовая точка игрока по оси Y
 var startPoint = -windowSize[1]/2 + 50;
-jumpto(0, startPoint+40);
+jumpto(0, startPoint+80);
 
-//картинка главного персонажа
 wear("https://i1.wp.com/sagesingularity.files.wordpress.com/2017/06/cropped-bluefighter1.png?w=700&h=&crop&ssl=1", 150);
 
-// Препятствия и их цвет, высота, широта
+// Препятствия
 var knifes = {
   k1: new Sprite({color:green, width:150, height: 10}),
-  k2: new Sprite({color:blue, width:100, height: 10}),
-  k3: new Sprite({color:blue, width:100, height: 10})
+  k2: new Sprite({color:blue, width:100, height: 10})
 };
 
-// Положение препятствий по высоте!
+// Положение препятствий по высоте
 // относительно центра экрана
 knifes.k1.fd(50);
 knifes.k2.bk(50);
-knifes.k3.bk(100);
 
 //Скорость пули 
-var bspeed = 18;
+var bspeed = 12;
 
 // Пуля
 var bullet = new Turtle("red");
@@ -54,7 +161,7 @@ bullet.twist(0);
 // Создание врагов
 var E_WIDTH = 30; // высота врага
 var E_HEIGHT = 30; // ширина врага
-var NUM_OF_ENEMY = 40; // количество врагов
+var NUM_OF_ENEMY = levels[level-1].numOfEnemies; // количество врагов
 var enemies = []; // массив всех врагов
 
 // windowSize[0] - ширина окна
@@ -63,11 +170,10 @@ var ww = windowSize[0]; // ww - window width
 var wh = windowSize[1]; // wh - window height
 var x0 = -ww/2; //+ E_WIDTH;
 var y0 = wh/2 - E_HEIGHT*1.5;
-var distance_x = 2.75 * E_WIDTH; //расстояние между врагами по оси X
-var distance_y = 2.5 * E_HEIGHT; //расстояние между врагами по оси Y
+var distance_x = 2.75 * E_WIDTH; 
+var distance_y = 2.5 * E_HEIGHT;
 var j = 2;
 
-//создаём спрайты для врагов, также расстояние между ними
 for (var i = 0; i < NUM_OF_ENEMY; i++) {
   var enemy = new Sprite({color:  red,
                           width:  E_WIDTH,
@@ -83,37 +189,36 @@ for (var i = 0; i < NUM_OF_ENEMY; i++) {
   }
   enemy.wear('https://vignette.wikia.nocookie.net/starbound/images/0/0e/Asteroid.png/revision/latest/scale-to-width-down/340?cb=20140324120428&path-prefix=ru', 75);
   enemy.jumpto(x0, y0);
-  enemies.push(enemy); //Забыл что это?
+  enemies.push(enemy);
 }
 // ====ENEMIES=END=====================
 
 // ====BULLETS=START=====================
 // Создание пуль
-var NUM_OF_BULLETS = NUM_OF_ENEMY*1.25; // количество пуль
+var kb = levels[level-1].kb;
+var NUM_OF_BULLETS = NUM_OF_ENEMY*kb; // количество пуль
 var B_WIDTH = ww/18; // высота пули
 var B_HEIGHT = 100/NUM_OF_BULLETS; // ширина пули
 var bullets = []; // массив всех пуль
 
-var x1 = ww/2 - B_WIDTH/2; // Кординаты для показа количества пуль
-var y1 = -wh/2 + B_HEIGHT; // Кординаты для показа количества пуль
-var distance_y_b = 1.5 * B_HEIGHT; // Расстояние между количеством пуль
+var x1 = ww/2 - B_WIDTH/2;
+var y1 = -wh/2 + B_HEIGHT;
+var distance_y_b = 1.5 * B_HEIGHT;
 
-// Создаём пули
-for (var i = 0; i < NUM_OF_BULLETS; i++) {
+for (var t = 0; t < NUM_OF_BULLETS; t++) {
   var bullet_t = new Sprite({color:  gold,
                           width:  B_WIDTH,
                           height: B_HEIGHT});
   bullet_t.wear('https://res.cloudinary.com/mirukusheku/image/upload/v1495140035/Red_laser-ConvertImage_votu8o.png', 50);
   bullet_t.twist(90);
-  y1 = y1 + distance_y_b + 2.5;
+  y1 = y1 + distance_y_b;
   bullet_t.jumpto(x1, y1);
   bullets.push(bullet_t);
 }
 // ====BULLETS=END=====================
 
-// Уничтожение врагов
-function destroy_enemy(aBullet, aEnemies, aCounter) {
-  for (var i = 0; i < NUM_OF_ENEMY; i++) {
+ function destroy_enemy(aBullet, aEnemies, aCounter) {
+  for (var i = 0; i < aEnemies.length; i++) {
     var enemy = aEnemies[i];
     if (aBullet.touches(enemy)) {
       enemy.hide();
@@ -126,42 +231,43 @@ function destroy_enemy(aBullet, aEnemies, aCounter) {
   return aCounter;
 }
 
-// Функция конец игры
-function gameOver() {
+ function gameOver() {
   cs();
   hide();
-  box(4000, rgb(255, 255, 255));
+  box(1500, rgb(255, 255, 255));
   write("<center style='margin-top:"+wh/2+"px;font-size:50px;font-wight:bold;'><h1>Game Over</h1></center>");
 }
-  
-// Функция победа
-function yourWin() {
+ function yourWin() {
   //cs();
   knifes.k1.hide();
-  knifes.k2.hide();  // Прячу препятствия
-  knifes.k3.hide();
+  knifes.k2.hide();
   hide();
-  isGunDone = false; // Запрещаю стрелять
+  isGunDone = false;
   //box(1500, rgb(255, 255, 255));
   write("<center style='color:#ffffff;margin-top:"+wh/2+"px;font-size:50px;font-wight:bold;'><h1>Your Win</h1></center>");
 } 
-knifes.k1.wear('https://raw.githubusercontent.com/Kostizynvd/kostizynvd.github.io/master/img/platforms.png', 80);
-knifes.k2.wear('https://raw.githubusercontent.com/Kostizynvd/kostizynvd.github.io/master/img/platforms.png', 70);
-knifes.k3.wear('https://raw.githubusercontent.com/Kostizynvd/kostizynvd.github.io/master/img/platforms.png', 60);
+knifes.k1.wear('https://lh3.googleusercontent.com/proxy/13rdGLDvzeuOB5YfDOvz2ZIExs6NA_I2mLEH60AbgOnyrCmNMs4nurkkv2gjj-ssLwmv4wNDqjdkgehMe60aDv7APdrK05p4Wg', 60);
+knifes.k2.wear('https://lh3.googleusercontent.com/proxy/13rdGLDvzeuOB5YfDOvz2ZIExs6NA_I2mLEH60AbgOnyrCmNMs4nurkkv2gjj-ssLwmv4wNDqjdkgehMe60aDv7APdrK05p4Wg', 40);
 
 // Шаг перемещения
-var step = 7;
-var position; // Позиция игрока!
+var step = 5.5;
+var position; // Позиция игрока
 var isSpace = false; //Нажат пробел?
 var isGunDone = true; //Готов стрелять?
-var k1Speed = 8; // Скорость ножа k1
-var k2Speed = -10; // Скорость ножа k2  
-var k3Speed = 12; // Скорость ножа k3
+var k1Speed = 5; // Скорость ножа k1
+var k2Speed = -7; // Скорость ножа k2  
+//var k3speed = 
 
 // Счетчик оставшихся патронов
 var counter_bullets = bullets.length - 1;
 // Счетчик оставшихся врагов
 var counter_enemies = enemies.length;
+
+
+//Массив активированных врагов
+var ActEnemies = [];
+var player = turtle;
+var ActSpeed = levels[level - 1].enemyEpeed;
 
 forever(60, function() {
   position = getxy()[0];
@@ -180,7 +286,6 @@ forever(60, function() {
     }
   }
   
-  // Стреляем
   if (pressed('space') && isGunDone) {
     bullet.jumpto(getxy());
     isSpace = true;
@@ -195,22 +300,42 @@ forever(60, function() {
     if (counter_bullets == -1 && counter_enemies != -1) {
       gameOver();
     }
+    
+    if (!(counter_bullets % 3)) {
+      var RndEnemy = (random(0, enemies.length-1));
+      while (ActEnemies[RndEnemy] === undefined)
+      {
+        ActEnemies[RndEnemy] = enemies[RndEnemy];
+        //Вылетает множество врагов
+        //RndEnemy = (random(0, enemies.length-1));
+      }
+    }
+  }
+  
+  
+  if (ActEnemies.length !== 0) {
+    for (var en = 0; en < ActEnemies.length; en++) {
+      var ActEnemy = ActEnemies[en];
+      if (ActEnemy === undefined) continue;
+      ActEnemy.turnto(player);
+      ActEnemy.fd(ActSpeed);
+       if (ActEnemy.touches(turtle)){
+    gameOver();
+    }
+    }
   }
   
   if (isSpace === true) {
     bullet.fd(bspeed);
   }
-  
-  //Если пуля покидает окно можно стрелять
-  if (!bullet.inside(window)) { 
+  if (!bullet.inside(window)) {
     isGunDone = true;
   }
   
   // Столкновение пули с ножами
   // Пуля исчезает и перезаряжается
   if (bullet.touches(knifes.k1) ||
-      bullet.touches(knifes.k2) ||
-      bullet.touches(knifes.k3)) {
+      bullet.touches(knifes.k2)) {
     bullet.hide();
     bullet.jumpto(getxy());
     isGunDone = true;
@@ -219,7 +344,7 @@ forever(60, function() {
   // Движени ножей
   knifes.k1.slide(k1Speed, 0);
   knifes.k2.slide(k2Speed, 0);
-  knifes.k3.slide(k3Speed, 0);  
+  
   // Отскакивание от стен ножа k1
   // k1xr - правая координата ножа
   // k1xl - левая координата ножа
@@ -244,21 +369,8 @@ forever(60, function() {
     k2Speed = -k2Speed;
   }
   
-  // Отскакивание от стен ножа k3
-  // k3xr - правая координата ножа
-  // k3xl - левая координата ножа
-  var k3x = knifes.k3.getxy()[0];
-  var k3xr = k3x + knifes.k3.width()/2;
-  var k3xl = k3x - knifes.k3.width()/2;
-  if (k3xr > windowSize[0]/2) {
-    k3Speed = -k3Speed;
-  } else if (k3xl < -windowSize[0]/2) {
-    k3Speed = -k3Speed;
-  }
-  
   counter_enemies = destroy_enemy(bullet, enemies, counter_enemies);
   
-  // Сраниваем количсетво врагов, если = 0 победа
   if (counter_enemies === 0) {
     yourWin();
     counter_enemies = -1;
@@ -266,7 +378,13 @@ forever(60, function() {
   }
 });
 
-
+  }
+  
+  if (onClickButton(event, button4)) {
+    level++;
+    debug(level);
+  }
+});
 
 
 </script></body></html>
